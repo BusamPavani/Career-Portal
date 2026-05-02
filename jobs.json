@@ -1,0 +1,12 @@
+[
+  {
+    "title": "Frontend Developer",
+    "company": "Google",
+    "desc": "React and UI development"
+  },
+  {
+    "title": "Backend Developer",
+    "company": "Amazon",
+    "desc": "API and database work"
+  }
+]
