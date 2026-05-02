@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Career Portal</title>
+
+<style>
+body {
+  margin:0;
+  font-family:Arial;
+  background:#141e30;
+  color:white;
+}
+
+/* HERO */
+.hero {
+  display:flex;
+  justify-content:space-between;
+  padding:40px;
+}
+
+.hero-text { width:50%; }
+.hero-text h1 { color:#00c6ff; }
+
+.hero-img img {
+  width:300px;
+  border-radius:10px;
+}
+
+/* LOGIN */
+#login, #register {
+  width:300px;
+  background:#1f2a3a;
+  padding:20px;
+  border-radius:10px;
+  text-align:center;
+
+  position:absolute;
+  top:60%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+input, textarea {
+  width:90%;
+  padding:10px;
+  margin:8px 0;
+}
+
+button {
+  width:95%;
+  padding:10px;
+  background:#00c6ff;
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+/* DASHBOARD */
+#dashboard { display:none; }
+
+.sidebar {
+  width:200px;
+  height:100vh;
+  background:#000;
+  position:fixed;
+}
+
+.sidebar button {
+  width:90%;
+  margin:10px;
+}
+
+.main {
+  margin-left:200px;
+  padding:20px;
+}
+
+.section { display:none; }
+.active { display:block; }
+
+.job-card {
+  background:#1f2a3a;
+  padding:10px;
+  margin:10px 0;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="hero">
+  <div class="hero-text">
+    <h1>Career Portal</h1>
+    <p>Find jobs, apply and grow your career.</p>
+  </div>
+
+  <div class="hero-img">
+    <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d">
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login">
+  <h2>Login</h2>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password">
+  <p id="error"></p>
+  <button onclick="login()">Login</button>
+  <button onclick="showRegister()">Register</button>
+</div>
+
+<!-- REGISTER -->
+<div id="register" style="display:none;">
+  <h2>Register</h2>
+  <input id="regEmail">
+  <input id="regPass">
+  <button onclick="register()">Register</button>
+  <button onclick="back()">Back</button>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div class="sidebar">
+    <button onclick="show('jobs')">Jobs</button>
+    <button onclick="show('applied')">Applied</button>
+    <button onclick="show('posted')">Posted</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main">
+
+    <div id="jobs" class="section active"></div>
+
+    <div id="applied" class="section">
+      <h3>Applied Jobs</h3>
+      <div id="appliedList"></div>
+    </div>
+
+    <div id="posted" class="section">
+      <h3>Post Job</h3>
+      <input id="title" placeholder="Title">
+      <input id="company" placeholder="Company">
+      <textarea id="desc" placeholder="Description"></textarea>
+      <button onclick="postJob()">Post</button>
+
+      <div id="postedList"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+// DATABASE (localStorage)
+let users = JSON.parse(localStorage.getItem("users")) || [];
+let jobs = JSON.parse(localStorage.getItem("jobs")) || [
+  {title:"Frontend Dev", company:"Google", desc:"React work"},
+  {title:"Backend Dev", company:"Amazon", desc:"API dev"}
+];
+
+let applied = [];
+
+// RENDER
+function renderJobs(){
+  let html="";
+  jobs.forEach((j,i)=>{
+    html+=`
+    <div class="job-card">
+      <h3>${j.title}</h3>
+      <p>${j.company}</p>
+      <p>${j.desc}</p>
+      <button onclick="apply(${i})">Apply</button>
+    </div>`;
+  });
+  document.getElementById("jobs").innerHTML=html;
+}
+
+function renderApplied(){
+  let html="";
+  applied.forEach(j=>{
+    html+=`<div class="job-card">${j.title}</div>`;
+  });
+  document.getElementById("appliedList").innerHTML=html;
+}
+
+function renderPosted(){
+  let html="";
+  jobs.forEach(j=>{
+    html+=`<div class="job-card">${j.title}</div>`;
+  });
+  document.getElementById("postedList").innerHTML=html;
+}
+
+// ACTIONS
+function apply(i){
+  applied.push(jobs[i]);
+  renderApplied();
+}
+
+function postJob(){
+  let job={
+    title:title.value,
+    company:company.value,
+    desc:desc.value
+  };
+  jobs.push(job);
+  localStorage.setItem("jobs",JSON.stringify(jobs));
+  renderJobs();
+  renderPosted();
+}
+
+// AUTH
+function register(){
+  users.push({
+    email:regEmail.value,
+    pass:regPass.value
+  });
+  localStorage.setItem("users",JSON.stringify(users));
+  start();
+}
+
+function login(){
+  let u = users.find(x=>x.email==email.value && x.pass==password.value);
+  if(!u){
+    error.innerText="Invalid login";
+    return;
+  }
+  start();
+}
+
+// START
+function start(){
+  document.querySelector(".hero").style.display="none";
+  login.style.display="none";
+  register.style.display="none";
+  dashboard.style.display="block";
+
+  renderJobs();
+  renderPosted();
+}
+
+// NAV
+function show(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function showRegister(){
+  login.style.display="none";
+  register.style.display="block";
+}
+
+function back(){
+  register.style.display="none";
+  login.style.display="block";
+}
+
+function logout(){
+  location.reload();
+}
+
+</script>
+
+</body>
+</html>
